@@ -74,26 +74,24 @@ func twoSum(nums []int, target int) []int {
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func ladderLength(beginWord string, endWord string, wordList []string) int {
-	if wordList == nil || len(wordList) == 0 {
-		return 0
-	}
-	step := 1
-	wordRune := []rune("abcdefghijklmnopqrstuvwxyz")
-	beginSet, endSet, wordSet := getWordMap([]string{beginWord}), getWordMap([]string{endWord}), getWordMap(wordList)
-	if _, ok := wordSet[endWord]; ok {
+	if wordList != nil && len(wordList) > 0 {
+		wordSet, beginSet, endSet, steps := getWordMap(wordList), getWordMap([]string{beginWord}), getWordMap([]string{endWord}), 1
+		if _, ok := wordSet[endWord]; !ok {
+			return 0
+		}
 		for len(beginSet) > 0 {
-			step++
+			steps++
 			nextSet := make(map[string]bool)
 			if len(beginSet) > len(endSet) {
 				beginSet, endSet = endSet, beginSet
 			}
 			for word := range beginSet {
 				for i := 0; i < len(word); i++ {
-					for _, c := range wordRune {
-						if c != int32(word[i]) {
+					for _, c := range "abcdefghijklmnopqrstuvwxyz" {
+						if c != rune(word[i]) {
 							target := word[:i] + string(c) + word[i+1:]
 							if _, ok := endSet[target]; ok {
-								return step
+								return steps
 							}
 							if _, ok := wordSet[target]; ok {
 								delete(wordSet, target)
@@ -110,11 +108,13 @@ func ladderLength(beginWord string, endWord string, wordList []string) int {
 }
 
 func getWordMap(wordList []string) map[string]bool {
-	mySet := make(map[string]bool)
-	for _, word := range wordList {
-		mySet[word] = true
+	wordSet := make(map[string]bool)
+	if wordList != nil && len(wordList) > 0 {
+		for _, word := range wordList {
+			wordSet[word] = true
+		}
 	}
-	return mySet
+	return wordSet
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
