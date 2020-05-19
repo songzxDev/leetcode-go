@@ -196,17 +196,17 @@ func threeSum(nums []int) [][]int {
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func generateParenthesis(n int) []string {
-	var helper func(left int, right int, s string, res *[]string, out int) []string
-	helper = func(left int, right int, s string, res *[]string, out int) []string {
-		if left+right == (out << 1) {
+	var helper func(left int, right int, s string, res *[]string, n int) []string
+	helper = func(left int, right int, s string, res *[]string, n int) []string {
+		if left+right == (n << 1) {
 			*res = append(*res, s)
 			return *res
 		}
-		if left < out {
-			helper(left+1, right, s+"(", res, out)
+		if left < n {
+			helper(left+1, right, s+"(", res, n)
 		}
 		if right < left {
-			helper(left, right+1, s+")", res, out)
+			helper(left, right+1, s+")", res, n)
 		}
 		return *res
 	}
