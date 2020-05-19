@@ -1,5 +1,9 @@
 package week01
 
+import (
+	"sort"
+)
+
 //给定一个整数数组 nums 和一个目标值 target，请你在该数组中找出和为目标值的那 两个 整数，并返回他们的数组下标。
 //
 // 你可以假设每种输入只会对应一个答案。但是，数组中同一个元素不能使用两遍。
@@ -115,6 +119,61 @@ func getWordMap(wordList []string) map[string]bool {
 		}
 	}
 	return wordSet
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
+
+//给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c = 0 ？请你找出所有满足条件且不重复
+//的三元组。
+//
+// 注意：答案中不可以包含重复的三元组。
+//
+//
+//
+// 示例：
+//
+// 给定数组 nums = [-1, 0, 1, 2, -1, -4]，
+//
+//满足要求的三元组集合为：
+//[
+//  [-1, 0, 1],
+//  [-1, -1, 2]
+//]
+//
+// Related Topics 数组 双指针
+
+//leetcode submit region begin(Prohibit modification and deletion)
+func threeSum(nums []int) [][]int {
+	var res [][]int
+	if nums == nil || len(nums) < 3 {
+		return res
+	}
+	sort.Ints(nums)
+	n, first := len(nums), nums[0]
+	for i := 0; first <= 0 && i < n-2; i++ {
+		if i == 0 || nums[i] > nums[i-1] {
+			j, k := i+1, n-1
+			for j < k {
+				afterAdd := nums[i] + nums[j] + nums[k]
+				if afterAdd == 0 {
+					res = append(res, []int{nums[i], nums[j], nums[k]})
+					j++
+					k--
+					for j < k && nums[j] == nums[j-1] {
+						j++
+					}
+					for j < k && nums[k] == nums[k+1] {
+						k--
+					}
+				} else if afterAdd < 0 {
+					j++
+				} else {
+					k--
+				}
+			}
+		}
+	}
+	return res
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
