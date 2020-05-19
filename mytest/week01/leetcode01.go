@@ -442,9 +442,9 @@ func letterCombinations(digits string) []string {
 			*res = append(*res, s)
 			return *res
 		}
-		coolie := tels[digits[depth] - '0']
-		for _,c := range coolie {
-			letterHelper(digits, res, s + string(c), depth + 1)
+		coolie := tels[digits[depth]-'0']
+		for _, c := range coolie {
+			letterHelper(digits, res, s+string(c), depth+1)
 		}
 		return *res
 	}
@@ -452,7 +452,66 @@ func letterCombinations(digits string) []string {
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
+//给你一个字符串 S、一个字符串 T，请在字符串 S 里面找出：包含 T 所有字符的最小子串。
+//
+// 示例：
+//
+// 输入: S = "ADOBECODEBANC", T = "ABC"
+//输出: "BANC"
+//
+// 说明：
+//
+//
+// 如果 S 中不存这样的子串，则返回空字符串 ""。
+// 如果 S 中存在这样的子串，我们保证它是唯一的答案。
+//
+// Related Topics 哈希表 双指针 字符串 Sliding Window
+
+//leetcode submit region begin(Prohibit modification and deletion)
+func minWindow(s string, t string) string {
+	sLen, tLen := len(s), len(t)
+	if sLen == 0 || tLen == 0 || sLen < tLen {
+		return ""
+	}
+	var i, j, found, start int
+	minLen, tCount, sCount := 0x7fffffff, [256]int{}, [256]int{}
+	for _, c := range t {
+		tCount[int(c)]++
+	}
+	for j < sLen {
+		if found < tLen {
+			prev := int(s[j])
+			j++
+			if tCount[prev] > 0 {
+				sCount[prev]++
+				if sCount[prev] <= tCount[prev] {
+					found++
+				}
+			}
+		}
+		for found == tLen {
+			if j-i < minLen {
+				start, minLen = i, j-i
+			}
+			next := int(s[i])
+			i++
+			if tCount[next] > 0 {
+				sCount[next]--
+				if sCount[next] < tCount[next] {
+					found--
+				}
+			}
+		}
+	}
+	if minLen == 0x7fffffff {
+		return ""
+	} else {
+		return s[start : start+minLen]
+	}
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
 
 func main() {
-	fmt.Println(letterCombinations("5"))
+	fmt.Println(minWindow("ADOBECODEBANC", "ABC"))
 }
