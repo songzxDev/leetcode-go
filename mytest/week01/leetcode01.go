@@ -177,3 +177,40 @@ func threeSum(nums []int) [][]int {
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
+//数字 n 代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。
+//
+//
+//
+// 示例：
+//
+// 输入：n = 3
+//输出：[
+//       "((()))",
+//       "(()())",
+//       "(())()",
+//       "()(())",
+//       "()()()"
+//     ]
+//
+// Related Topics 字符串 回溯算法
+
+//leetcode submit region begin(Prohibit modification and deletion)
+func generateParenthesis(n int) []string {
+	var helper func(left int, right int, s string, res *[]string, out int) []string
+	helper = func(left int, right int, s string, res *[]string, out int) []string {
+		if left+right == (out << 1) {
+			*res = append(*res, s)
+			return *res
+		}
+		if left < out {
+			helper(left+1, right, s+"(", res, out)
+		}
+		if right < left {
+			helper(left, right+1, s+")", res, out)
+		}
+		return *res
+	}
+	return helper(0, 0, "", &[]string{}, n)
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
