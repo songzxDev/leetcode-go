@@ -473,41 +473,40 @@ func minWindow(s string, t string) string {
 	if sLen == 0 || tLen == 0 || sLen < tLen {
 		return ""
 	}
-	var i, j, found, start int
+	var i, j, start, found int
 	minLen, tCount, sCount := 0x7fffffff, [256]int{}, [256]int{}
 	for _, c := range t {
-		tCount[int(c)]++
+		tCount[c]++
 	}
 	for j < sLen {
 		if found < tLen {
 			prev := int(s[j])
-			j++
 			if tCount[prev] > 0 {
 				sCount[prev]++
 				if sCount[prev] <= tCount[prev] {
 					found++
 				}
 			}
+			j++
 		}
 		for found == tLen {
 			if j-i < minLen {
 				start, minLen = i, j-i
 			}
 			next := int(s[i])
-			i++
 			if tCount[next] > 0 {
 				sCount[next]--
 				if sCount[next] < tCount[next] {
 					found--
 				}
 			}
+			i++
 		}
 	}
 	if minLen == 0x7fffffff {
 		return ""
-	} else {
-		return s[start : start+minLen]
 	}
+	return s[start : start+minLen]
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
