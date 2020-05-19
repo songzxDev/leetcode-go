@@ -245,7 +245,7 @@ func groupAnagrams(strs []string) [][]string {
 	getNumKey := func(stt string) int {
 		numKey := 1
 		for _, v := range stt {
-			numKey *= primes[v - 'a']
+			numKey *= primes[v-'a']
 		}
 		return numKey
 	}
@@ -258,6 +258,46 @@ func groupAnagrams(strs []string) [][]string {
 		res = append(res, value)
 	}
 	return res
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
+
+//给定一个二叉树，返回它的中序 遍历。
+//
+// 示例:
+//
+// 输入: [1,null,2,3]
+//   1
+//    \
+//     2
+//    /
+//   3
+//
+//输出: [1,3,2]
+//
+// 进阶: 递归算法很简单，你可以通过迭代算法完成吗？
+// Related Topics 栈 树 哈希表
+
+//leetcode submit region begin(Prohibit modification and deletion)
+
+type TreeNode struct {
+	Val   int
+	Left  *TreeNode
+	Right *TreeNode
+}
+
+func inorderTraversal(root *TreeNode) []int {
+	var treeHelper func(node *TreeNode, res *[]int) []int
+	treeHelper = func(node *TreeNode, res *[]int) []int {
+		if node == nil {
+			return *res
+		}
+		treeHelper(node.Left, res)
+		*res = append(*res, node.Val)
+		treeHelper(node.Right, res)
+		return *res
+	}
+	return treeHelper(root, &[]int{})
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
