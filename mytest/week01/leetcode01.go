@@ -23,12 +23,12 @@ import (
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func twoSum(nums []int, target int) []int {
-	myCache := make(map[int]int)
-	for i, num := range nums {
-		if v, ok := myCache[target-num]; ok {
-			return []int{v, i}
+	myMap := make(map[int]int)
+	for i, v := range nums {
+		if _, ok := myMap[target-v]; ok {
+			return []int{myMap[target-v], i}
 		}
-		myCache[num] = i
+		myMap[v] = i
 	}
 	return []int{}
 }
@@ -80,21 +80,30 @@ func twoSum(nums []int, target int) []int {
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func ladderLength(beginWord string, endWord string, wordList []string) int {
-	if wordList != nil && len(wordList) > 0 {
-		wordSet, beginSet, endSet, steps := getWordMap(wordList), getWordMap([]string{beginWord}), getWordMap([]string{endWord}), 1
-		if _, ok := wordSet[endWord]; !ok {
-			return 0
+	if wordList == nil || len(wordList) == 0 {
+		return 0
+	}
+	mySetFromArray := func(wordList []string) map[string]bool {
+		mySet := make(map[string]bool)
+		if wordList != nil && len(wordList) > 0 {
+			for _, word := range wordList {
+				mySet[word] = true
+			}
 		}
+		return mySet
+	}
+	wordSet, beginSet, endSet, steps := mySetFromArray(wordList), mySetFromArray([]string{beginWord}), mySetFromArray([]string{endWord}), 1
+	if _, ok := wordSet[endWord]; ok {
 		for len(beginSet) > 0 {
 			steps++
-			nextSet := make(map[string]bool)
+			nextSet := mySetFromArray([]string{})
 			if len(beginSet) > len(endSet) {
 				beginSet, endSet = endSet, beginSet
 			}
 			for word := range beginSet {
-				for i := 0; i < len(word); i++ {
+				for i, w := range word {
 					for _, c := range "abcdefghijklmnopqrstuvwxyz" {
-						if c != rune(word[i]) {
+						if w != c {
 							target := word[:i] + string(c) + word[i+1:]
 							if _, ok := endSet[target]; ok {
 								return steps
@@ -111,16 +120,6 @@ func ladderLength(beginWord string, endWord string, wordList []string) int {
 		}
 	}
 	return 0
-}
-
-func getWordMap(wordList []string) map[string]bool {
-	wordSet := make(map[string]bool)
-	if wordList != nil && len(wordList) > 0 {
-		for _, word := range wordList {
-			wordSet[word] = true
-		}
-	}
-	return wordSet
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
@@ -147,30 +146,29 @@ func getWordMap(wordList []string) map[string]bool {
 //leetcode submit region begin(Prohibit modification and deletion)
 func threeSum(nums []int) [][]int {
 	var res [][]int
-	if nums == nil || len(nums) < 3 {
-		return res
-	}
-	sort.Ints(nums)
-	n, first := len(nums), nums[0]
-	for i := 0; first <= 0 && i < n-2; i++ {
-		if i == 0 || nums[i] > nums[i-1] {
-			j, k := i+1, n-1
-			for j < k {
-				afterAdd := nums[i] + nums[j] + nums[k]
-				if afterAdd == 0 {
-					res = append(res, []int{nums[i], nums[j], nums[k]})
-					j++
-					k--
-					for j < k && nums[j] == nums[j-1] {
-						j++
-					}
-					for j < k && nums[k] == nums[k+1] {
+	if nums != nil && len(nums) > 2 {
+		sort.Ints(nums)
+		first, n := nums[0], len(nums)
+		for i := 0; first <=0 && i < n-2; i++ {
+			if i == 0 || nums[i] > nums[i - 1] {
+				j, k := i + 1, n - 1
+				for j < k {
+					numAdd := nums[i] + nums[j] + nums[k]
+					if numAdd > 0 {
 						k--
+					} else if numAdd < 0 {
+						j++
+					} else {
+						res = append(res, []int{nums[i], nums[j], nums[k]})
+						j++
+						k--
+						for j < k && nums[j - 1] == nums[j] {
+							j++
+						}
+						for j < k && nums[k + 1] == nums[k] {
+							k--
+						}
 					}
-				} else if afterAdd < 0 {
-					j++
-				} else {
-					k--
 				}
 			}
 		}
