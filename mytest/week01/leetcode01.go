@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"sort"
 )
 
@@ -725,12 +726,12 @@ func uniquePathsWithObstacles(obstacleGrid [][]int) int {
 				steps[i][j] = 0
 			} else if i == 0 {
 				if j > 0 {
-					steps[i][j] = steps[i][j - 1]
+					steps[i][j] = steps[i][j-1]
 				}
 			} else if j == 0 {
-				steps[i][j] = steps[i - 1][j]
+				steps[i][j] = steps[i-1][j]
 			} else {
-				steps[i][j] = steps[i][j - 1] + steps[i - 1][j]
+				steps[i][j] = steps[i][j-1] + steps[i-1][j]
 			}
 		}
 	}
@@ -750,14 +751,50 @@ func getXYArray(m int, n int) [][]int {
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
+//你是一个专业的小偷，计划偷窃沿街的房屋。每间房内都藏有一定的现金，影响你偷窃的唯一制约因素就是相邻的房屋装有相互连通的防盗系统，如果两间相邻的房屋在同一晚上
+//被小偷闯入，系统会自动报警。
+//
+// 给定一个代表每个房屋存放金额的非负整数数组，计算你在不触动警报装置的情况下，能够偷窃到的最高金额。
+//
+// 示例 1:
+//
+// 输入: [1,2,3,1]
+//输出: 4
+//解释: 偷窃 1 号房屋 (金额 = 1) ，然后偷窃 3 号房屋 (金额 = 3)。
+//     偷窃到的最高金额 = 1 + 3 = 4 。
+//
+// 示例 2:
+//
+// 输入: [2,7,9,3,1]
+//输出: 12
+//解释: 偷窃 1 号房屋 (金额 = 2), 偷窃 3 号房屋 (金额 = 9)，接着偷窃 5 号房屋 (金额 = 1)。
+//     偷窃到的最高金额 = 2 + 9 + 1 = 12 。
+//
+// Related Topics 动态规划
+
+//leetcode submit region begin(Prohibit modification and deletion)
+func rob(nums []int) int {
+	if nums == nil || len(nums) == 0 {
+		return 0
+	}
+	n, robStatus := len(nums), [][2]int{{0, nums[0]}}
+	for i := 1; i < n; i++ {
+		robStatus = append(robStatus, [2]int{0, 0})
+		robStatus[i][0] = int(math.Max(float64(robStatus[i-1][0]), float64(robStatus[i-1][1])))
+		robStatus[i][1] = nums[i] + robStatus[i-1][0]
+	}
+	return int(math.Max(float64(robStatus[n-1][0]), float64(robStatus[n-1][1])))
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
 
 func main() {
-	node := &Node{
+	/*node := &Node{
 		Val: 1,
 		Children: []*Node{
 			&Node{Val: 2, Children: []*Node{}},
 			&Node{Val: 3, Children: []*Node{}},
 		},
-	}
-	fmt.Println(postorder(node))
+	}*/
+	fmt.Println(rob([]int{2, 7, 9, 3, 1}))
 }
