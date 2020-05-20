@@ -511,6 +511,65 @@ func minWindow(s string, t string) string {
 
 //leetcode submit region end(Prohibit modification and deletion)
 
+//给你一个整数数组 nums，请你将该数组升序排列。
+//
+//
+//
+//
+//
+//
+// 示例 1：
+//
+// 输入：nums = [5,2,3,1]
+//输出：[1,2,3,5]
+//
+//
+// 示例 2：
+//
+// 输入：nums = [5,1,1,2,0,0]
+//输出：[0,0,1,1,2,5]
+//
+//
+//
+//
+// 提示：
+//
+//
+// 1 <= nums.length <= 50000
+// -50000 <= nums[i] <= 50000
+//
+//
+
+//leetcode submit region begin(Prohibit modification and deletion)
+func sortArray(nums []int) []int {
+	if len(nums) < 2 {
+		return nums
+	}
+	partition := func(nums []int, begin int, end int) int {
+		pivot, counter := end, begin
+		for i := begin; i < end; i++ {
+			if nums[i] < nums[pivot] {
+				nums[i], nums[counter] = nums[counter], nums[i]
+				counter++
+			}
+		}
+		nums[counter], nums[pivot] = nums[pivot], nums[counter]
+		return counter
+	}
+	var quickSort func(nums []int, begin int, end int)
+	quickSort = func(nums []int, begin int, end int) {
+		if begin < end {
+			pivot := partition(nums, begin, end)
+			quickSort(nums, begin, pivot-1)
+			quickSort(nums, pivot+1, end)
+		}
+	}
+	quickSort(nums, 0, len(nums)-1)
+	return nums
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
+
 func main() {
-	fmt.Println(minWindow("ADOBECODEBANC", "ABC"))
+	fmt.Println(sortArray([]int{-9, -99, -1, 0, 8, 5, 37, 101}))
 }
