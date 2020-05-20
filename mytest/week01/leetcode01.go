@@ -148,26 +148,26 @@ func threeSum(nums []int) [][]int {
 	var res [][]int
 	if nums != nil && len(nums) > 2 {
 		sort.Ints(nums)
-		first, n := nums[0], len(nums)
-		for i := 0; first <=0 && i < n-2; i++ {
-			if i == 0 || nums[i] > nums[i - 1] {
-				j, k := i + 1, n - 1
+		n, first := len(nums), nums[0]
+		for i := 0; first <= 0 && i < n-2; i++ {
+			if i == 0 || nums[i] > nums[i-1] {
+				j, k := i+1, n-1
 				for j < k {
 					numAdd := nums[i] + nums[j] + nums[k]
-					if numAdd > 0 {
-						k--
-					} else if numAdd < 0 {
-						j++
-					} else {
+					if numAdd == 0 {
 						res = append(res, []int{nums[i], nums[j], nums[k]})
 						j++
 						k--
-						for j < k && nums[j - 1] == nums[j] {
+						for j < k && nums[j-1] == nums[j] {
 							j++
 						}
-						for j < k && nums[k + 1] == nums[k] {
+						for j < k && nums[k+1] == nums[k] {
 							k--
 						}
+					} else if numAdd < 0 {
+						j++
+					} else {
+						k--
 					}
 				}
 			}
@@ -196,21 +196,22 @@ func threeSum(nums []int) [][]int {
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func generateParenthesis(n int) []string {
-	var helper func(left int, right int, s string, res *[]string, n int) []string
-	helper = func(left int, right int, s string, res *[]string, n int) []string {
-		if left+right == (n << 1) {
-			*res = append(*res, s)
-			return *res
+	var res []string
+	var myHelper func(n int, s string, left int, right int)
+	myHelper = func(n int, s string, left int, right int) {
+		if (n << 1) == left+right {
+			res = append(res, s)
+			return
 		}
 		if left < n {
-			helper(left+1, right, s+"(", res, n)
+			myHelper(n, s+"(", left+1, right)
 		}
 		if right < left {
-			helper(left, right+1, s+")", res, n)
+			myHelper(n, s+")", left, right+1)
 		}
-		return *res
 	}
-	return helper(0, 0, "", &[]string{}, n)
+	myHelper(n, "", 0, 0)
+	return res
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
@@ -241,23 +242,27 @@ func groupAnagrams(strs []string) [][]string {
 	if strs == nil || len(strs) == 0 {
 		return res
 	}
-	primes := []int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101}
-	getNumKey := func(stt string) int {
+	primes := [26]int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101}
+	myMap, getMapValues, getNumKey := make(map[int][]string), func(myMap map[int][]string) [][]string {
+		var values [][]string
+		if len(myMap) > 0 {
+			for stt := range myMap {
+				values = append(values, myMap[stt])
+			}
+		}
+		return values
+	}, func(stt string) int {
 		numKey := 1
-		for _, v := range stt {
-			numKey *= primes[v-'a']
+		for _, c := range stt {
+			numKey *= primes[c-'a']
 		}
 		return numKey
 	}
-	countMap := make(map[int][]string)
 	for _, stt := range strs {
 		numKey := getNumKey(stt)
-		countMap[numKey] = append(countMap[numKey], stt)
+		myMap[numKey] = append(myMap[numKey], stt)
 	}
-	for _, value := range countMap {
-		res = append(res, value)
-	}
-	return res
+	return getMapValues(myMap)
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
