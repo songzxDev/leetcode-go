@@ -570,6 +570,76 @@ func sortArray(nums []int) []int {
 
 //leetcode submit region end(Prohibit modification and deletion)
 
+//给定一个 N 叉树，返回其节点值的层序遍历。 (即从左到右，逐层遍历)。
+//
+// 例如，给定一个 3叉树 :
+//
+//
+//
+//
+//
+//
+//
+// 返回其层序遍历:
+//
+// [
+//     [1],
+//     [3,2,4],
+//     [5,6]
+//]
+//
+//
+//
+//
+// 说明:
+//
+//
+// 树的深度不会超过 1000。
+// 树的节点总数不会超过 5000。
+// Related Topics 树 广度优先搜索
+
+//leetcode submit region begin(Prohibit modification and deletion)
+/**
+ * Definition for a Node.
+ * type Node struct {
+ *     Val int
+ *     Children []*Node
+ * }
+ */
+type Node struct {
+	Val      int
+	Children []*Node
+}
+
+func levelOrder(root *Node) [][]int {
+	var res [][]int
+	if root == nil {
+		return res
+	}
+	queue := []*Node{root}
+	for len(queue) > 0 {
+		var tmp []int
+		var next []*Node
+		for _, q := range queue {
+			tmp = append(tmp, q.Val)
+			if q.Children != nil && len(q.Children) > 0 {
+				next = append(next, q.Children...)
+			}
+		}
+		res, queue = append(res, tmp), next
+	}
+	return res
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
+
 func main() {
-	fmt.Println(sortArray([]int{-9, -99, -1, 0, 8, 5, 37, 101}))
+	node := &Node{
+		Val: 1,
+		Children: []*Node{
+			&Node{Val: 2, Children: []*Node{}},
+			&Node{Val: 3, Children: []*Node{}},
+		},
+	}
+	fmt.Println(levelOrder(node))
 }
