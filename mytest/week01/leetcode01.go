@@ -837,6 +837,53 @@ func rotate(nums []int, k int) {
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
+//给定一个 N 叉树，返回其节点值的前序遍历。
+//
+// 例如，给定一个 3叉树 :
+//
+//
+//
+//
+//
+//
+//
+// 返回其前序遍历: [1,3,5,6,2,4]。
+//
+//
+//
+// 说明: 递归法很简单，你可以使用迭代法完成此题吗? Related Topics 树
+
+//leetcode submit region begin(Prohibit modification and deletion)
+/**
+ * Definition for a Node.
+ * type Node struct {
+ *     Val int
+ *     Children []*Node
+ * }
+ */
+
+func preorder(root *Node) []int {
+	if root == nil {
+		return []int{}
+	}
+	var res []int
+	var treeHelper func(node *Node)
+	treeHelper = func(node *Node) {
+		if node == nil {
+			return
+		}
+		res = append(res, node.Val)
+		if node.Children != nil && len(node.Children) > 0 {
+			for _, c := range node.Children {
+				treeHelper(c)
+			}
+		}
+	}
+	treeHelper(root)
+	return res
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
 
 func main() {
 	/*node := &Node{
@@ -846,7 +893,7 @@ func main() {
 			&Node{Val: 3, Children: []*Node{}},
 		},
 	}*/
-	testList := []int{1,2,3,4,5,6,7}
+	testList := []int{1, 2, 3, 4, 5, 6, 7}
 	rotate(testList, 3)
 	fmt.Println(testList)
 }
