@@ -238,31 +238,30 @@ func generateParenthesis(n int) []string {
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func groupAnagrams(strs []string) [][]string {
-	var res [][]string
-	if strs == nil || len(strs) == 0 {
-		return res
-	}
-	primes := [26]int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101}
-	myMap, getMapValues, getNumKey := make(map[int][]string), func(myMap map[int][]string) [][]string {
-		var values [][]string
-		if len(myMap) > 0 {
-			for stt := range myMap {
-				values = append(values, myMap[stt])
+	if strs, ok := interface{}(strs).([]string); ok && len(strs) > 0 {
+		primes := [26]int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101}
+		myMap, getMapValues, getNumKey := make(map[int][]string), func(myMap map[int][]string) [][]string {
+			var values [][]string
+			if len(myMap) > 0 {
+				for stt := range myMap {
+					values = append(values, myMap[stt])
+				}
 			}
+			return values
+		}, func(stt string) int {
+			numKey := 1
+			for _, c := range stt {
+				numKey *= primes[c-'a']
+			}
+			return numKey
 		}
-		return values
-	}, func(stt string) int {
-		numKey := 1
-		for _, c := range stt {
-			numKey *= primes[c-'a']
+		for _, stt := range strs {
+			numKey := getNumKey(stt)
+			myMap[numKey] = append(myMap[numKey], stt)
 		}
-		return numKey
+		return getMapValues(myMap)
 	}
-	for _, stt := range strs {
-		numKey := getNumKey(stt)
-		myMap[numKey] = append(myMap[numKey], stt)
-	}
-	return getMapValues(myMap)
+	return [][]string{}
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
