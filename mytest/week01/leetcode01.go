@@ -23,12 +23,12 @@ import (
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func twoSum(nums []int, target int) []int {
-	myMap := make(map[int]int)
-	for i, v := range nums {
-		if _, ok := myMap[target-v]; ok {
-			return []int{myMap[target-v], i}
+	myMap := make(map[int]int, len(nums))
+	for i, n := range nums {
+		if _, ok := myMap[target-n]; ok {
+			return []int{myMap[target-n], i}
 		}
-		myMap[v] = i
+		myMap[n] = i
 	}
 	return []int{}
 }
@@ -80,23 +80,20 @@ func twoSum(nums []int, target int) []int {
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func ladderLength(beginWord string, endWord string, wordList []string) int {
-	if wordList == nil || len(wordList) == 0 {
-		return 0
-	}
-	mySetFromArray := func(wordList []string) map[string]bool {
+	changeListToSet := func(wordList []string) map[string]bool {
 		mySet := make(map[string]bool)
-		if wordList != nil && len(wordList) > 0 {
+		if len(wordList) > 0 {
 			for _, word := range wordList {
 				mySet[word] = true
 			}
 		}
 		return mySet
 	}
-	wordSet, beginSet, endSet, steps := mySetFromArray(wordList), mySetFromArray([]string{beginWord}), mySetFromArray([]string{endWord}), 1
+	step, wordSet, beginSet, endSet := 1, changeListToSet(wordList), changeListToSet([]string{beginWord}), changeListToSet([]string{endWord})
 	if _, ok := wordSet[endWord]; ok {
 		for len(beginSet) > 0 {
-			steps++
-			nextSet := mySetFromArray([]string{})
+			step++
+			nextSet := make(map[string]bool)
 			if len(beginSet) > len(endSet) {
 				beginSet, endSet = endSet, beginSet
 			}
@@ -106,7 +103,7 @@ func ladderLength(beginWord string, endWord string, wordList []string) int {
 						if w != c {
 							target := word[:i] + string(c) + word[i+1:]
 							if _, ok := endSet[target]; ok {
-								return steps
+								return step
 							}
 							if _, ok := wordSet[target]; ok {
 								delete(wordSet, target)
@@ -148,23 +145,23 @@ func threeSum(nums []int) [][]int {
 	var res [][]int
 	if nums != nil && len(nums) > 2 {
 		sort.Ints(nums)
-		n, first := len(nums), nums[0]
-		for i := 0; first <= 0 && i < n-2; i++ {
+		first, n := nums[0], len(nums)
+		for i := 0; i < n-2 && first <= 0; i++ {
 			if i == 0 || nums[i] > nums[i-1] {
 				j, k := i+1, n-1
 				for j < k {
-					numAdd := nums[i] + nums[j] + nums[k]
-					if numAdd == 0 {
+					sumNum := nums[i] + nums[j] + nums[k]
+					if sumNum == 0 {
 						res = append(res, []int{nums[i], nums[j], nums[k]})
 						j++
 						k--
-						for j < k && nums[j-1] == nums[j] {
+						for j < k && nums[j] == nums[j-1] {
 							j++
 						}
-						for j < k && nums[k+1] == nums[k] {
+						for j < k && nums[k] == nums[k+1] {
 							k--
 						}
-					} else if numAdd < 0 {
+					} else if sumNum < 0 {
 						j++
 					} else {
 						k--
@@ -238,30 +235,28 @@ func generateParenthesis(n int) []string {
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func groupAnagrams(strs []string) [][]string {
-	if strs, ok := interface{}(strs).([]string); ok && len(strs) > 0 {
-		primes := [26]int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101}
-		myMap, getMapValues, getNumKey := make(map[int][]string), func(myMap map[int][]string) [][]string {
-			var values [][]string
-			if len(myMap) > 0 {
-				for stt := range myMap {
-					values = append(values, myMap[stt])
-				}
-			}
-			return values
-		}, func(stt string) int {
-			numKey := 1
-			for _, c := range stt {
-				numKey *= primes[c-'a']
-			}
-			return numKey
-		}
-		for _, stt := range strs {
-			numKey := getNumKey(stt)
-			myMap[numKey] = append(myMap[numKey], stt)
-		}
-		return getMapValues(myMap)
+	if strs == nil || len(strs) == 0 {
+		return [][]string{}
 	}
-	return [][]string{}
+	primes := [26]int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101}
+	getNumKey, getMapValue, countMap := func(stt string) int {
+		numKey := 1
+		for _, c := range stt {
+			numKey *= primes[c-'a']
+		}
+		return numKey
+	}, func(myMap map[int][]string) [][]string {
+		var res [][]string
+		for arr := range myMap {
+			res = append(res, myMap[arr])
+		}
+		return res
+	}, make(map[int][]string, 16)
+	for _, stt := range strs {
+		numKey := getNumKey(stt)
+		countMap[numKey] = append(countMap[numKey], stt)
+	}
+	return getMapValue(countMap)
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
@@ -291,17 +286,18 @@ type TreeNode struct {
 }
 
 func inorderTraversal(root *TreeNode) []int {
-	var treeHelper func(node *TreeNode, res *[]int) []int
-	treeHelper = func(node *TreeNode, res *[]int) []int {
+	var res []int
+	var helper func(node *TreeNode)
+	helper = func(node *TreeNode) {
 		if node == nil {
-			return *res
+			return
 		}
-		treeHelper(node.Left, res)
-		*res = append(*res, node.Val)
-		treeHelper(node.Right, res)
-		return *res
+		helper(node.Left)
+		res = append(res, node.Val)
+		helper(node.Right)
 	}
-	return treeHelper(root, &[]int{})
+	helper(root)
+	return res
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
@@ -333,17 +329,18 @@ func inorderTraversal(root *TreeNode) []int {
  * }
  */
 func preorderTraversal(root *TreeNode) []int {
-	var treeHelper func(node *TreeNode, res *[]int) []int
-	treeHelper = func(node *TreeNode, res *[]int) []int {
+	var res []int
+	var helper func(node *TreeNode)
+	helper = func(node *TreeNode) {
 		if node == nil {
-			return *res
+			return
 		}
-		*res = append(*res, node.Val)
-		treeHelper(node.Left, res)
-		treeHelper(node.Right, res)
-		return *res
+		res = append(res, node.Val)
+		helper(node.Left)
+		helper(node.Right)
 	}
-	return treeHelper(root, &[]int{})
+	helper(root)
+	return res
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
@@ -438,20 +435,21 @@ func letterCombinations(digits string) []string {
 	if len(digits) == 0 {
 		return []string{}
 	}
-	tels := []string{"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"}
-	var letterHelper func(digits string, res *[]string, s string, depth int) []string
-	letterHelper = func(digits string, res *[]string, s string, depth int) []string {
+	var res []string
+	nums := [10]string{"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"}
+	var helper func(digits string, depth int, s string)
+	helper = func(digits string, depth int, s string) {
 		if len(s) == len(digits) {
-			*res = append(*res, s)
-			return *res
+			res = append(res, s)
+			return
 		}
-		coolie := tels[digits[depth]-'0']
+		coolie := nums[digits[depth]-'0']
 		for _, c := range coolie {
-			letterHelper(digits, res, s+string(c), depth+1)
+			helper(digits, depth+1, s+string(c))
 		}
-		return *res
 	}
-	return letterHelper(digits, &[]string{}, "", 0)
+	helper(digits, 0, "")
+	return res
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
@@ -476,11 +474,11 @@ func minWindow(s string, t string) string {
 	if sLen == 0 || tLen == 0 || sLen < tLen {
 		return ""
 	}
-	tCount, sCount, end := [256]int{}, [256]int{}, math.MaxInt32
+	tCount, sCount, minLen := [256]int{}, [256]int{}, math.MaxInt32
+	var i, j, start, found int
 	for _, c := range t {
 		tCount[c]++
 	}
-	var i, j, begin, found int
 	for j < sLen {
 		if found < tLen {
 			prev := s[j]
@@ -493,8 +491,8 @@ func minWindow(s string, t string) string {
 			j++
 		}
 		for found == tLen {
-			if j-i < end {
-				begin, end = i, j - i
+			if j-i < minLen {
+				start, minLen = i, j-i
 			}
 			next := s[i]
 			if tCount[next] > 0 {
@@ -506,10 +504,10 @@ func minWindow(s string, t string) string {
 			i++
 		}
 	}
-	if end == math.MaxInt32 {
+	if minLen == math.MaxInt32 {
 		return ""
 	}
-	return s[begin:begin + end]
+	return s[start : start+minLen]
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
@@ -883,6 +881,45 @@ func preorder(root *Node) []int {
 	}
 	treeHelper(root)
 	return res
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
+//给你两个有序整数数组 nums1 和 nums2，请你将 nums2 合并到 nums1 中，使 nums1 成为一个有序数组。
+//
+//
+//
+// 说明:
+//
+//
+// 初始化 nums1 和 nums2 的元素数量分别为 m 和 n 。
+// 你可以假设 nums1 有足够的空间（空间大小大于或等于 m + n）来保存 nums2 中的元素。
+//
+//
+//
+//
+// 示例:
+//
+// 输入:
+//nums1 = [1,2,3,0,0,0], m = 3
+//nums2 = [2,5,6],       n = 3
+//
+//输出: [1,2,2,3,5,6]
+// Related Topics 数组 双指针
+
+//leetcode submit region begin(Prohibit modification and deletion)
+func merge(nums1 []int, m int, nums2 []int, n int) {
+	i, j, k := m-1, n-1, m+n-1
+	for i >= 0 && j >= 0 {
+		if nums1[i] > nums2[j] {
+			nums1[k], i = nums1[i], i-1
+		} else {
+			nums1[k], j = nums2[j], j-1
+		}
+		k--
+	}
+	for j >= 0 {
+		nums1[j], j = nums2[j], j-1
+	}
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
