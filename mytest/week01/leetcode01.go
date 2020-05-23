@@ -23,12 +23,12 @@ import (
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func twoSum(nums []int, target int) []int {
-	myMap := make(map[int]int, len(nums))
+	myCache := make(map[int]int, 16)
 	for i, n := range nums {
-		if _, ok := myMap[target-n]; ok {
-			return []int{myMap[target-n], i}
+		if _, ok := myCache[target-n]; ok {
+			return []int{myCache[target-n], i}
 		}
-		myMap[n] = i
+		myCache[n] = i
 	}
 	return []int{}
 }
@@ -80,41 +80,44 @@ func twoSum(nums []int, target int) []int {
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func ladderLength(beginWord string, endWord string, wordList []string) int {
-	changeListToSet := func(wordList []string) map[string]bool {
+	listReverseSet := func(array []string) map[string]bool {
 		mySet := make(map[string]bool)
-		if len(wordList) > 0 {
-			for _, word := range wordList {
+		if array != nil && len(array) > 0 {
+			for _, word := range array {
 				mySet[word] = true
 			}
 		}
 		return mySet
 	}
-	step, wordSet, beginSet, endSet := 1, changeListToSet(wordList), changeListToSet([]string{beginWord}), changeListToSet([]string{endWord})
-	if _, ok := wordSet[endWord]; ok {
-		for len(beginSet) > 0 {
-			step++
-			nextSet := make(map[string]bool)
-			if len(beginSet) > len(endSet) {
-				beginSet, endSet = endSet, beginSet
-			}
-			for word := range beginSet {
-				for i, w := range word {
-					for _, c := range "abcdefghijklmnopqrstuvwxyz" {
-						if w != c {
-							target := word[:i] + string(c) + word[i+1:]
-							if _, ok := endSet[target]; ok {
-								return step
-							}
-							if _, ok := wordSet[target]; ok {
-								delete(wordSet, target)
-								nextSet[target] = true
-							}
+	wordSet := listReverseSet(wordList)
+	if _, ok := wordSet[endWord]; !ok {
+		return 0
+	}
+	const WORD26 string = "abcdefghijklmnopqrstuvwxyz"
+	beginSet, endSet, steps := listReverseSet([]string{beginWord}), listReverseSet([]string{endWord}), 1
+	for len(beginSet) > 0 {
+		steps++
+		nextSet := make(map[string]bool)
+		if len(beginSet) > len(endSet) {
+			beginSet, endSet = endSet, beginSet
+		}
+		for word := range beginSet {
+			for i, w := range word {
+				for _, c := range WORD26 {
+					if w != c {
+						target := word[:i] + string(c) + word[i+1:]
+						if _, ok := endSet[target]; ok {
+							return steps
+						}
+						if _, ok := wordSet[target]; ok {
+							delete(wordSet, target)
+							nextSet[target] = true
 						}
 					}
 				}
 			}
-			beginSet = nextSet
 		}
+		beginSet = nextSet
 	}
 	return 0
 }
@@ -143,28 +146,28 @@ func ladderLength(beginWord string, endWord string, wordList []string) int {
 //leetcode submit region begin(Prohibit modification and deletion)
 func threeSum(nums []int) [][]int {
 	var res [][]int
-	if nums != nil && len(nums) > 2 {
+	if nums != nil && len(nums) > 0 {
 		sort.Ints(nums)
-		first, n := nums[0], len(nums)
-		for i := 0; i < n-2 && first <= 0; i++ {
+		n, isRun := len(nums)-1, nums[0] <= 0
+		for i := 0; isRun && i < n-1; i++ {
 			if i == 0 || nums[i] > nums[i-1] {
-				j, k := i+1, n-1
+				j, k := i+1, n
 				for j < k {
-					sumNum := nums[i] + nums[j] + nums[k]
-					if sumNum == 0 {
+					numAdd := nums[i] + nums[j] + nums[k]
+					if numAdd == 0 {
 						res = append(res, []int{nums[i], nums[j], nums[k]})
 						j++
-						k--
-						for j < k && nums[j] == nums[j-1] {
+						for j < k && nums[j-1] == nums[j] {
 							j++
 						}
-						for j < k && nums[k] == nums[k+1] {
+						k--
+						for j < k && nums[k+1] == nums[k] {
 							k--
 						}
-					} else if sumNum < 0 {
-						j++
-					} else {
+					} else if numAdd > 0 {
 						k--
+					} else {
+						j++
 					}
 				}
 			}
@@ -194,20 +197,20 @@ func threeSum(nums []int) [][]int {
 //leetcode submit region begin(Prohibit modification and deletion)
 func generateParenthesis(n int) []string {
 	var res []string
-	var myHelper func(n int, s string, left int, right int)
-	myHelper = func(n int, s string, left int, right int) {
+	var helper func(n int, s string, left int, right int)
+	helper = func(n int, s string, left int, right int) {
 		if (n << 1) == left+right {
 			res = append(res, s)
 			return
 		}
 		if left < n {
-			myHelper(n, s+"(", left+1, right)
+			helper(n, s+"(", left+1, right)
 		}
 		if right < left {
-			myHelper(n, s+")", left, right+1)
+			helper(n, s+")", left, right+1)
 		}
 	}
-	myHelper(n, "", 0, 0)
+	helper(n, "", 0, 0)
 	return res
 }
 
@@ -239,24 +242,24 @@ func groupAnagrams(strs []string) [][]string {
 		return [][]string{}
 	}
 	primes := [26]int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101}
-	getNumKey, getMapValue, countMap := func(stt string) int {
+	getMapValues, getNumKey, countMap := func(countMap map[int][]string) [][]string {
+		var res [][]string
+		for word := range countMap {
+			res = append(res, countMap[word])
+		}
+		return res
+	}, func(stt string) int{
 		numKey := 1
 		for _, c := range stt {
 			numKey *= primes[c-'a']
 		}
 		return numKey
-	}, func(myMap map[int][]string) [][]string {
-		var res [][]string
-		for arr := range myMap {
-			res = append(res, myMap[arr])
-		}
-		return res
-	}, make(map[int][]string, 16)
+	}, make(map[int][]string)
 	for _, stt := range strs {
 		numKey := getNumKey(stt)
 		countMap[numKey] = append(countMap[numKey], stt)
 	}
-	return getMapValue(countMap)
+	return getMapValues(countMap)
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
