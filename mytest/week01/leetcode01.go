@@ -248,7 +248,7 @@ func groupAnagrams(strs []string) [][]string {
 			res = append(res, countMap[word])
 		}
 		return res
-	}, func(stt string) int{
+	}, func(stt string) int {
 		numKey := 1
 		for _, c := range stt {
 			numKey *= primes[c-'a']
@@ -373,9 +373,11 @@ type ListNode struct {
 func mergeTwoLists(l1 *ListNode, l2 *ListNode) *ListNode {
 	if l1 == nil {
 		return l2
-	} else if l2 == nil {
+	}
+	if l2 == nil {
 		return l1
-	} else if l1.Val < l2.Val {
+	}
+	if l1.Val < l2.Val {
 		l1.Next = mergeTwoLists(l1.Next, l2)
 		return l1
 	} else {
@@ -435,23 +437,22 @@ func reverseList(head *ListNode) *ListNode {
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func letterCombinations(digits string) []string {
-	if len(digits) == 0 {
-		return []string{}
-	}
 	var res []string
-	nums := [10]string{"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"}
-	var helper func(digits string, depth int, s string)
-	helper = func(digits string, depth int, s string) {
-		if len(s) == len(digits) {
-			res = append(res, s)
-			return
+	if len(digits) > 0 {
+		letters := [10]string{"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"}
+		var helper func(digits string, s string, depth int)
+		helper = func(digits string, s string, depth int) {
+			if len(s) == len(digits) {
+				res = append(res, s)
+				return
+			}
+			coolie := letters[digits[depth]-'0']
+			for _, c := range coolie {
+				helper(digits, s+string(c), depth+1)
+			}
 		}
-		coolie := nums[digits[depth]-'0']
-		for _, c := range coolie {
-			helper(digits, depth+1, s+string(c))
-		}
+		helper(digits, "", 0)
 	}
-	helper(digits, 0, "")
 	return res
 }
 
@@ -477,8 +478,8 @@ func minWindow(s string, t string) string {
 	if sLen == 0 || tLen == 0 || sLen < tLen {
 		return ""
 	}
-	tCount, sCount, minLen := [256]int{}, [256]int{}, math.MaxInt32
 	var i, j, start, found int
+	minLen, tCount, sCount := 0x7fffffff, [256]int{}, [256]int{}
 	for _, c := range t {
 		tCount[c]++
 	}
@@ -507,7 +508,7 @@ func minWindow(s string, t string) string {
 			i++
 		}
 	}
-	if minLen == math.MaxInt32 {
+	if minLen == 0x7fffffff {
 		return ""
 	}
 	return s[start : start+minLen]
@@ -546,29 +547,35 @@ func minWindow(s string, t string) string {
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func sortArray(nums []int) []int {
-	if len(nums) < 2 {
+	if nums == nil || len(nums) < 2 {
 		return nums
 	}
-	partition := func(nums []int, begin int, end int) int {
-		pivot, counter := end, begin
-		for i := begin; i < end; i++ {
-			if nums[i] < nums[pivot] {
-				nums[i], nums[counter] = nums[counter], nums[i]
-				counter++
-			}
+	var maxNum, minNum, countSize int
+	for _, num := range nums {
+		if num > maxNum {
+			maxNum = num
 		}
-		nums[counter], nums[pivot] = nums[pivot], nums[counter]
-		return counter
-	}
-	var quickSort func(nums []int, begin int, end int)
-	quickSort = func(nums []int, begin int, end int) {
-		if begin < end {
-			pivot := partition(nums, begin, end)
-			quickSort(nums, begin, pivot-1)
-			quickSort(nums, pivot+1, end)
+		if num < minNum {
+			minNum = num
 		}
 	}
-	quickSort(nums, 0, len(nums)-1)
+	countSize = maxNum - minNum + 1
+	countList := make([]int, countSize)
+	for _, num := range nums {
+		countList[num-minNum]++
+	}
+	for i := 1; i < countSize; i++ {
+		countList[i] += countList[i-1]
+	}
+	k := len(nums) - 1
+	var copied = make([]int, k+1)
+	copy(copied, nums)
+	for k >= 0 {
+		f := countList[copied[k]-minNum] - 1
+		nums[f] = copied[k]
+		countList[copied[k]-minNum]--
+		k--
+	}
 	return nums
 }
 
@@ -935,7 +942,7 @@ func main() {
 			&Node{Val: 3, Children: []*Node{}},
 		},
 	}*/
-	testList := []int{1, 2, 3, 4, 5, 6, 7}
-	rotate(testList, 3)
-	fmt.Println(testList)
+	testList := []int{7, 5, -99, -32, 67, 81, 97, 3, 2, 1}
+
+	fmt.Println(sortArray(testList))
 }
