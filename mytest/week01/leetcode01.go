@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math"
 	"sort"
 )
 
@@ -550,30 +549,28 @@ func sortArray(nums []int) []int {
 	if nums == nil || len(nums) < 2 {
 		return nums
 	}
-	var maxNum, minNum, countSize int
+	var maxNum, minNum int
 	for _, num := range nums {
-		if num > maxNum {
-			maxNum = num
-		}
 		if num < minNum {
 			minNum = num
 		}
+		if num > maxNum {
+			maxNum = num
+		}
 	}
-	countSize = maxNum - minNum + 1
-	countList := make([]int, countSize)
+	countLen := maxNum - minNum + 1
+	countList := make([]int, countLen)
 	for _, num := range nums {
 		countList[num-minNum]++
 	}
-	for i := 1; i < countSize; i++ {
+	for i := 1; i < countLen; i++ {
 		countList[i] += countList[i-1]
 	}
-	k := len(nums) - 1
-	var copied = make([]int, k+1)
+	copied, k := make([]int, len(nums)), len(nums)-1
 	copy(copied, nums)
 	for k >= 0 {
-		f := countList[copied[k]-minNum] - 1
-		nums[f] = copied[k]
 		countList[copied[k]-minNum]--
+		nums[countList[copied[k]-minNum]] = copied[k]
 		k--
 	}
 	return nums
@@ -629,15 +626,13 @@ func levelOrder(root *Node) [][]int {
 	}
 	queue := []*Node{root}
 	for len(queue) > 0 {
-		var tmp []int
 		var next []*Node
+		var temp []int
 		for _, q := range queue {
-			tmp = append(tmp, q.Val)
-			if q.Children != nil && len(q.Children) > 0 {
-				next = append(next, q.Children...)
-			}
+			temp = append(temp, q.Val)
+			next = append(next, q.Children...)
 		}
-		res, queue = append(res, tmp), next
+		res, queue = append(res, temp), next
 	}
 	return res
 }
@@ -669,18 +664,15 @@ func levelOrder(root *Node) [][]int {
  */
 
 func postorder(root *Node) []int {
-	if root == nil {
-		return []int{}
-	}
 	var res []int
 	var helper func(node *Node)
 	helper = func(node *Node) {
-		if node == nil {
+		if root == nil {
 			return
 		}
-		if node.Children != nil {
-			for _, val := range node.Children {
-				helper(val)
+		if node.Children != nil && len(node.Children) > 0 {
+			for _, child := range node.Children {
+				helper(child)
 			}
 		}
 		res = append(res, node.Val)
@@ -787,13 +779,20 @@ func rob(nums []int) int {
 	if nums == nil || len(nums) == 0 {
 		return 0
 	}
-	n, robStatus := len(nums), [][2]int{{0, nums[0]}}
+	myMaxInt := func(x, y int) int {
+		if x > y {
+			return x
+		} else {
+			return y
+		}
+	}
+	robStatus, n := make([][2]int, len(nums)), len(nums)
+	robStatus[0] = [2]int{0, nums[0]}
 	for i := 1; i < n; i++ {
-		robStatus = append(robStatus, [2]int{0, 0})
-		robStatus[i][0] = int(math.Max(float64(robStatus[i-1][0]), float64(robStatus[i-1][1])))
+		robStatus[i][0] = myMaxInt(robStatus[i-1][0], robStatus[i-1][1])
 		robStatus[i][1] = nums[i] + robStatus[i-1][0]
 	}
-	return int(math.Max(float64(robStatus[n-1][0]), float64(robStatus[n-1][1])))
+	return myMaxInt(robStatus[n-1][0], robStatus[n-1][1])
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
