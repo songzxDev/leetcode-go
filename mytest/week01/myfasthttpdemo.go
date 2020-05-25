@@ -6,10 +6,20 @@ import (
 	"time"
 )
 
-func myTestRun() {
-	cli := &fasthttp.Client{
-		MaxConnsPerHost: 2000,
+var (
+	maxIdleConnDuration time.Duration
+)
+
+func myTestRun(cli *fasthttp.Client) {
+	if cli == nil {
+		cli = &fasthttp.Client{
+			MaxConnsPerHost: 2000,
+			// DefaultMaxIdleConnDuration 是在空闲的 keep-alive 连接被关闭前默认的持续时间
+			// const DefaultMaxIdleConnDuration = 10 * time.Second
+			MaxIdleConnDuration: maxIdleConnDuration,
+		}
 	}
+
 	requ := fasthttp.AcquireRequest()
 
 	requ.Header.SetMethod("GET")
@@ -27,6 +37,12 @@ func myTestRun() {
 	fasthttp.ReleaseRequest(requ)
 	fasthttp.ReleaseResponse(resp)
 }
+
 func main() {
-	myTestRun()
+	maxIdleConnDuration = 60 * time.Second
+
+	for i := 0; i < 5000; i++ {
+		go myTestRun(nil)
+	}
+	time.Sleep(maxIdleConnDuration)
 }
