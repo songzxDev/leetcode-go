@@ -23,7 +23,7 @@ func main() {
 	bockChan := make(chan bool)
 	quitChan := make(chan bool)
 	// 1000用户在线，1000 qps
-	users, qps := 2000, int32(1500)
+	users, qps := 3000, int32(2000)
 	atomic.StoreInt32(&myI32, qps)
 	go func() {
 		for {
@@ -32,14 +32,14 @@ func main() {
 				return
 			default:
 				atomic.StoreInt32(&myI32, qps)
-				time.Sleep(100 * time.Millisecond)
+				time.Sleep(20 * time.Millisecond)
 				close(bockChan)
 				bockChan = make(chan bool)
 			}
 		}
 	}()
 	for i := 0; i < users; i++ {
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(1 * time.Millisecond)
 		select {
 		case <-quitChan:
 			return
@@ -63,5 +63,5 @@ func main() {
 
 	}
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(60 * time.Second)
 }
