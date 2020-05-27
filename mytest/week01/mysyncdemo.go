@@ -1,48 +1,67 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"os"
 	"sync/atomic"
 	"time"
 )
-
+func init() {
+	file := "G:\\mygolandlog\\myrunlog1.log"
+	logFile, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0766)
+	if err != nil {
+		panic(err)
+	}
+	log.SetOutput(logFile) // 将文件设置为log输出的文件
+	log.SetPrefix("[qSkipTool]")
+	log.SetFlags(log.LstdFlags | log.Lshortfile | log.LUTC)
+	return
+}
 func main() {
 
-	var myI32 int32 = 19
+	var myI32 int32
 	bockChan := make(chan bool)
 	quitChan := make(chan bool)
-	atomic.StoreInt32(&myI32, 19)
+	// 1000用户在线，1000 qps
+	users, qps := 2000, int32(1500)
+	atomic.StoreInt32(&myI32, qps)
 	go func() {
 		for {
 			select {
 			case <-quitChan:
-				fmt.Println("a.................................................")
 				return
 			default:
-				atomic.StoreInt32(&myI32, 19)
-				time.Sleep(10 * time.Millisecond)
+				atomic.StoreInt32(&myI32, qps)
+				time.Sleep(100 * time.Millisecond)
 				close(bockChan)
 				bockChan = make(chan bool)
 			}
 		}
 	}()
-
-	go func() {
-		for {
-			select {
-			case <-quitChan:
-				fmt.Println("b.................................................")
-				return
-			default:
-				p := atomic.AddInt32(&myI32, -1)
-				if p < 0 {
-					<-bockChan
-				} else {
-					fmt.Printf("atomic.AddInt32(...) === %d\n", p)
+	for i := 0; i < users; i++ {
+		time.Sleep(50 * time.Millisecond)
+		select {
+		case <-quitChan:
+			return
+		default:
+			go func() {
+				for {
+					select {
+					case <-quitChan:
+						return
+					default:
+						p := atomic.AddInt32(&myI32, -1)
+						if p < 0 {
+							<-bockChan
+						} else {
+							log.Printf("atomic.AddInt32===%d", p)
+						}
+					}
 				}
-			}
+			}()
 		}
-	}()
+
+	}
 
 	time.Sleep(10 * time.Second)
 }
