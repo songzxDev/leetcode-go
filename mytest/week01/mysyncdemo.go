@@ -11,7 +11,7 @@ func main() {
 	var myI32 int32 = 19
 	bockChan := make(chan bool)
 	quitChan := make(chan bool)
-
+	atomic.StoreInt32(&myI32, 19)
 	go func() {
 		for {
 			select {
@@ -20,7 +20,7 @@ func main() {
 				return
 			default:
 				atomic.StoreInt32(&myI32, 19)
-				time.Sleep(100 * time.Millisecond)
+				time.Sleep(10 * time.Millisecond)
 				close(bockChan)
 				bockChan = make(chan bool)
 			}
