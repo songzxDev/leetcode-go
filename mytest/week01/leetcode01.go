@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"sort"
 )
 
@@ -79,44 +80,42 @@ func twoSum(nums []int, target int) []int {
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func ladderLength(beginWord string, endWord string, wordList []string) int {
-	listReverseSet := func(array []string) map[string]bool {
-		mySet := make(map[string]bool)
-		if array != nil && len(array) > 0 {
-			for _, word := range array {
+	myChangeSet := func(list []string) map[string]bool {
+		var mySet = make(map[string]bool)
+		if list != nil && len(list) > 0 {
+			for _, word := range list {
 				mySet[word] = true
 			}
 		}
 		return mySet
 	}
-	wordSet := listReverseSet(wordList)
-	if _, ok := wordSet[endWord]; !ok {
-		return 0
-	}
-	const WORD26 string = "abcdefghijklmnopqrstuvwxyz"
-	beginSet, endSet, steps := listReverseSet([]string{beginWord}), listReverseSet([]string{endWord}), 1
-	for len(beginSet) > 0 {
-		steps++
-		nextSet := make(map[string]bool)
-		if len(beginSet) > len(endSet) {
-			beginSet, endSet = endSet, beginSet
-		}
-		for word := range beginSet {
-			for i, w := range word {
-				for _, c := range WORD26 {
-					if w != c {
-						target := word[:i] + string(c) + word[i+1:]
-						if _, ok := endSet[target]; ok {
-							return steps
-						}
-						if _, ok := wordSet[target]; ok {
-							delete(wordSet, target)
-							nextSet[target] = true
+	wordSet := myChangeSet(wordList)
+	if _, ok := wordSet[endWord]; ok {
+		step, beginSet, endSet := 1, myChangeSet([]string{beginWord}), myChangeSet([]string{endWord})
+		for len(beginSet) > 0 {
+			if len(beginSet) > len(endSet) {
+				beginSet, endSet = endSet, beginSet
+			}
+			nextSet := myChangeSet([]string{})
+			step++
+			for word := range beginSet {
+				for i, w := range word {
+					for _, c := range "abcdefghijklmnopqrstuvwxyz" {
+						if w != c {
+							target := word[:i] + string(c) + word[i+1:]
+							if _, ok := endSet[target]; ok {
+								return step
+							}
+							if _, ok := wordSet[target]; ok {
+								delete(wordSet, target)
+								nextSet[target] = true
+							}
 						}
 					}
 				}
 			}
+			beginSet = nextSet
 		}
-		beginSet = nextSet
 	}
 	return 0
 }
@@ -478,16 +477,16 @@ func minWindow(s string, t string) string {
 		return ""
 	}
 	var i, j, start, found int
-	minLen, tCount, sCount := 0x7fffffff, [256]int{}, [256]int{}
+	tCount, sCount, minLen := [256]int{}, [256]int{}, 0x7fffffff
 	for _, c := range t {
 		tCount[c]++
 	}
 	for j < sLen {
 		if found < tLen {
-			prev := s[j]
-			if tCount[prev] > 0 {
-				sCount[prev]++
-				if sCount[prev] <= tCount[prev] {
+			right := s[j]
+			if tCount[right] > 0 {
+				sCount[right]++
+				if sCount[right] <= tCount[right] {
 					found++
 				}
 			}
@@ -497,10 +496,10 @@ func minWindow(s string, t string) string {
 			if j-i < minLen {
 				start, minLen = i, j-i
 			}
-			next := s[i]
-			if tCount[next] > 0 {
-				sCount[next]--
-				if sCount[next] < tCount[next] {
+			left := s[i]
+			if tCount[left] > 0 {
+				sCount[left]--
+				if sCount[left] < tCount[left] {
 					found--
 				}
 			}
@@ -779,20 +778,13 @@ func rob(nums []int) int {
 	if nums == nil || len(nums) == 0 {
 		return 0
 	}
-	myMaxInt := func(x, y int) int {
-		if x > y {
-			return x
-		} else {
-			return y
-		}
-	}
 	robStatus, n := make([][2]int, len(nums)), len(nums)
 	robStatus[0] = [2]int{0, nums[0]}
 	for i := 1; i < n; i++ {
-		robStatus[i][0] = myMaxInt(robStatus[i-1][0], robStatus[i-1][1])
+		robStatus[i][0] = int(math.Max(float64(robStatus[i-1][0]), float64(robStatus[i-1][1])))
 		robStatus[i][1] = nums[i] + robStatus[i-1][0]
 	}
-	return myMaxInt(robStatus[n-1][0], robStatus[n-1][1])
+	return int(math.Max(float64(robStatus[n-1][0]), float64(robStatus[n-1][1])))
 }
 
 //leetcode submit region end(Prohibit modification and deletion)

@@ -7,33 +7,46 @@ import (
 )
 
 func main() {
-	var i32 int32 = int32(97)
-	var o32 int32 = i32
-	for i := 0; i < int(o32); i++ {
-		go func(k int) {
-			myi32 := atomic.AddInt32(&i32, -1)
-			fmt.Printf("i的值是：%d，myi32的值是：%d\n", k, myi32)
-		}(i)
-	}
-	for {
-		if atomic.LoadInt32(&i32) == 0 {
-			fmt.Printf("myi32的值是：%d\n", i32)
-			func() {
-				for i := 0; i < 1; i++ {
-					fmt.Println("abc")
-					func() {
-						for j := 1; j < 100; j++ {
-							if j == 99 {
-								return
-							}
-						}
-					}()
-					return
-				}
-			}()
-			return
+
+
+	var myI32 int32 = 0
+	bockChan := make(chan bool)
+	quitChan := make(chan bool)
+
+	go func() {
+		for {
+			select {
+			case <-quitChan:
+				fmt.Println("a.................................................")
+				return
+			default:
+				fmt.Printf("atomic.StoreInt32(...) === %d\n", myI32)
+				atomic.StoreInt32(&myI32, 19)
+				time.Sleep(500 * time.Millisecond)
+				close(bockChan)
+				bockChan = make(chan bool)
+			}
 		}
-		time.Sleep(time.Millisecond * 1)
-	}
-	fmt.Println("Main exit.")
+	}()
+
+	go func() {
+		for {
+			select {
+			case <-quitChan:
+				fmt.Println("b.................................................")
+				return
+			default:
+				p := atomic.AddInt32(&myI32, -1)
+				fmt.Printf("atomic.AddInt32(...) === %d\n", myI32)
+				if p < 0 {
+					<-bockChan
+				}
+			}
+		}
+	}()
+
+	time.Sleep(20 * time.Second)
+	quitChan <- true
+	quitChan <- true
+	time.Sleep(10 * time.Second)
 }
