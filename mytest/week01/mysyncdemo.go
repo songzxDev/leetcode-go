@@ -8,8 +8,7 @@ import (
 
 func main() {
 
-
-	var myI32 int32 = 0
+	var myI32 int32 = 19
 	bockChan := make(chan bool)
 	quitChan := make(chan bool)
 
@@ -20,9 +19,8 @@ func main() {
 				fmt.Println("a.................................................")
 				return
 			default:
-				fmt.Printf("atomic.StoreInt32(...) === %d\n", myI32)
 				atomic.StoreInt32(&myI32, 19)
-				time.Sleep(500 * time.Millisecond)
+				time.Sleep(100 * time.Millisecond)
 				close(bockChan)
 				bockChan = make(chan bool)
 			}
@@ -37,16 +35,14 @@ func main() {
 				return
 			default:
 				p := atomic.AddInt32(&myI32, -1)
-				fmt.Printf("atomic.AddInt32(...) === %d\n", myI32)
 				if p < 0 {
 					<-bockChan
+				} else {
+					fmt.Printf("atomic.AddInt32(...) === %d\n", p)
 				}
 			}
 		}
 	}()
 
-	time.Sleep(20 * time.Second)
-	quitChan <- true
-	quitChan <- true
 	time.Sleep(10 * time.Second)
 }
