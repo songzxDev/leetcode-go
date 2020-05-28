@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"net"
 	"sort"
 )
 
@@ -936,4 +937,27 @@ func main() {
 	testList := []int{7, 5, -99, -32, 67, 81, 97, 3, 2, 1}
 
 	fmt.Println(sortArray(testList))
+	getLocalIp := func() string {
+		localIp := "127.0.0.1"
+		netInterfaces, err := net.Interfaces()
+		if err != nil {
+			fmt.Println(err)
+			return localIp
+		}
+		for i := 0; i < len(netInterfaces); i++ {
+			if (netInterfaces[i].Flags & net.FlagUp) != 0 {
+				addrs, _ := netInterfaces[i].Addrs()
+				for _, address := range addrs {
+					if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+						if ipnet.IP.To4() != nil {
+							localIp = ipnet.IP.String()
+						}
+					}
+				}
+			}
+		}
+		return localIp
+	}
+
+	fmt.Println(getLocalIp())
 }
