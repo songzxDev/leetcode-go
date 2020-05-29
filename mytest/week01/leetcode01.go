@@ -478,7 +478,7 @@ func minWindow(s string, t string) string {
 		return ""
 	}
 	var i, j, start, found int
-	tCount, sCount, minLen := [256]int{}, [256]int{}, 0x7fffffff
+	minLen, tCount, sCount := 0x7fffffff, [256]int{}, [256]int{}
 	for _, c := range t {
 		tCount[c]++
 	}
@@ -782,8 +782,8 @@ func rob(nums []int) int {
 	robStatus, n := make([][2]int, len(nums)), len(nums)
 	robStatus[0] = [2]int{0, nums[0]}
 	for i := 1; i < n; i++ {
-		robStatus[i][0] = int(math.Max(float64(robStatus[i-1][0]), float64(robStatus[i-1][1])))
 		robStatus[i][1] = nums[i] + robStatus[i-1][0]
+		robStatus[i][0] = int(math.Max(float64(robStatus[i-1][0]), float64(robStatus[i-1][1])))
 	}
 	return int(math.Max(float64(robStatus[n-1][0]), float64(robStatus[n-1][1])))
 }
