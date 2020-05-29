@@ -23,9 +23,10 @@ func init() {
 	return
 }
 func main() {
-	var threshold int32 = 1000
-	qps, users := threshold*10, int(threshold)
+	qps, users := 3000, 1000
+	var threshold int32 = int32(qps)
 	quitChan, bookChan := make(chan bool), make(chan bool)
+
 	for i := 0; i < users; i++ {
 		select {
 		case <-quitChan:
@@ -41,7 +42,7 @@ func main() {
 						if p < 0 {
 							<-bookChan
 						} else {
-							log.Printf("atomic.AddInt32===%v", p)
+							log.Printf("atomic.AddInt32===%d", p)
 						}
 					}
 				}
@@ -54,13 +55,13 @@ func main() {
 			case <-quitChan:
 				return
 			default:
-				atomic.StoreInt32(&threshold, qps)
-				time.Sleep(500 * time.Millisecond)
+				atomic.StoreInt32(&threshold, int32(qps))
+				time.Sleep(1 * time.Second)
 				close(bookChan)
 				bookChan = make(chan bool)
 			}
 		}
 	}()
 
-	time.Sleep(5 * time.Minute)
+	time.Sleep(2 * time.Minute)
 }
