@@ -23,32 +23,10 @@ func init() {
 	return
 }
 func main() {
-
-	// 定义用于控制流程流转的channel
-	quitChan, bockChan := make(chan bool), make(chan bool)
-
-	// 定义用于计数控制的原子类型变量
-	var myI32 int32
-	users, qps := 1000, int32(2000)
-	atomic.StoreInt32(&myI32, qps)
-	// 恢复计数的控制分支
-
-	go func() {
-		for {
-			select {
-			case <-quitChan:
-				return
-			default:
-				atomic.StoreInt32(&myI32, qps)
-				time.Sleep(20 * time.Millisecond)
-				close(bockChan)
-				bockChan = make(chan bool)
-			}
-		}
-	}()
-
+	var threshold int32 = 1000
+	qps, users := threshold*10, int(threshold)
+	quitChan, bookChan := make(chan bool), make(chan bool)
 	for i := 0; i < users; i++ {
-		time.Sleep(1 * time.Millisecond)
 		select {
 		case <-quitChan:
 			return
@@ -59,18 +37,30 @@ func main() {
 					case <-quitChan:
 						return
 					default:
-						p := atomic.AddInt32(&myI32, -1)
+						p := atomic.AddInt32(&threshold, -1)
 						if p < 0 {
-							<-bockChan
+							<-bookChan
 						} else {
-							log.Printf("atomic.AddInt32===%d", p)
+							log.Printf("atomic.AddInt32===%v", p)
 						}
 					}
 				}
-
 			}()
 		}
 	}
+	go func() {
+		for {
+			select {
+			case <-quitChan:
+				return
+			default:
+				atomic.StoreInt32(&threshold, qps)
+				time.Sleep(1 * time.Second)
+				close(bookChan)
+				bookChan = make(chan bool)
+			}
+		}
+	}()
 
-	time.Sleep(2 * time.Minute)
+	time.Sleep(4 * time.Minute)
 }
