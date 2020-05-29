@@ -33,22 +33,28 @@ func main() {
 			return
 		default:
 			go func() {
-				for {
-					select {
-					case <-quitChan:
-						return
-					default:
-						p := atomic.AddInt32(&threshold, -1)
-						if p < 0 {
-							<-bookChan
-						} else {
-							log.Printf("atomic.AddInt32===%d", p)
+				select {
+				case <-quitChan:
+					return
+				default:
+					for {
+						select {
+						case <-quitChan:
+							return
+						default:
+							p := atomic.AddInt32(&threshold, -1)
+							if p < 0 {
+								<-bookChan
+							} else {
+								log.Printf("atomic.AddInt32===%d", p)
+							}
 						}
 					}
 				}
 			}()
 		}
 	}
+
 	go func() {
 		for {
 			select {
@@ -56,7 +62,7 @@ func main() {
 				return
 			default:
 				atomic.StoreInt32(&threshold, int32(qps))
-				time.Sleep(1 * time.Second)
+				time.Sleep(1000 * time.Millisecond)
 				close(bookChan)
 				bookChan = make(chan bool)
 			}
