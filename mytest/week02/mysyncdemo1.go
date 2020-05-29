@@ -55,12 +55,12 @@ func main() {
 				return
 			default:
 				atomic.StoreInt32(&threshold, qps)
-				time.Sleep(1 * time.Second)
+				time.Sleep(500 * time.Millisecond)
 				close(bookChan)
 				bookChan = make(chan bool)
 			}
 		}
 	}()
 
-	time.Sleep(4 * time.Minute)
+	time.Sleep(5 * time.Minute)
 }
