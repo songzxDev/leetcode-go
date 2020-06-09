@@ -1,6 +1,9 @@
 package main
 
-import "math"
+import (
+	"math"
+	"sort"
+)
 
 //给定一个排序数组，你需要在 原地 删除重复出现的元素，使得每个元素只出现一次，返回移除后数组的新长度。
 //
@@ -330,6 +333,58 @@ func minWindow(s string, t string) string {
 		return ""
 	}
 	return s[start : start+minLen]
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
+//给你一个包含 n 个整数的数组 nums，判断 nums 中是否存在三个元素 a，b，c ，使得 a + b + c = 0 ？请你找出所有满足条件且不重复
+//的三元组。
+//
+// 注意：答案中不可以包含重复的三元组。
+//
+//
+//
+// 示例：
+//
+// 给定数组 nums = [-1, 0, 1, 2, -1, -4]，
+//
+//满足要求的三元组集合为：
+//[
+//  [-1, 0, 1],
+//  [-1, -1, 2]
+//]
+//
+// Related Topics 数组 双指针
+
+//leetcode submit region begin(Prohibit modification and deletion)
+func threeSum(nums []int) [][]int {
+	var res [][]int
+	if nums != nil && len(nums) > 2 {
+		sort.Ints(nums)
+		isRun, n := nums[0] <= 0, len(nums)
+		for i := 0; isRun && i < n-2; i++ {
+			if i == 0 || nums[i-1] < nums[i] {
+				j, k := i+1, n-1
+				for j < k {
+					add := nums[i] + nums[j] + nums[k]
+					if add == 0 {
+						res = append(res, []int{nums[i], nums[j], nums[k]})
+						j, k = j+1, k-1
+						for j < k && nums[j-1] == nums[j] {
+							j++
+						}
+						for j < k && nums[k+1] == nums[k] {
+							k--
+						}
+					} else if add < 0 {
+						j++
+					} else {
+						k--
+					}
+				}
+			}
+		}
+	}
+	return res
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
