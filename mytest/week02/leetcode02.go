@@ -1,5 +1,7 @@
 package main
 
+import "math"
+
 //给定一个排序数组，你需要在 原地 删除重复出现的元素，使得每个元素只出现一次，返回移除后数组的新长度。
 //
 // 不要使用额外的数组空间，你必须在 原地 修改输入数组 并在使用 O(1) 额外空间的条件下完成。
@@ -251,26 +253,83 @@ func buildTree(preorder []int, inorder []int) *TreeNode {
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func groupAnagrams(strs []string) [][]string {
-	if strs == nil || len(strs) == 0 {
-		return [][]string{}
-	}
-	primes := [26]int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101}
-	getNumKey, groupMap := func(stt string) int {
-		numKey := 1
-		for _, c := range stt {
-			numKey *= primes[c-'a']
-		}
-		return numKey
-	}, make(map[int][]string)
-	for _, stt := range strs {
-		numKey := getNumKey(stt)
-		groupMap[numKey] = append(groupMap[numKey], stt)
-	}
 	var res [][]string
-	for key := range groupMap {
-		res = append(res, groupMap[key])
+	if strs != nil && len(strs) > 0 {
+		primes := [26]int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101}
+		getNumKey, groupMap := func(stt string) int {
+			numKey := 1
+			for _, c := range stt {
+				numKey *= primes[c-'a']
+			}
+			return numKey
+		}, make(map[int][]string)
+		for _, stt := range strs {
+			numKey := getNumKey(stt)
+			groupMap[numKey] = append(groupMap[numKey], stt)
+		}
+		for key := range groupMap {
+			res = append(res, groupMap[key])
+		}
 	}
 	return res
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
+//给你一个字符串 S、一个字符串 T，请在字符串 S 里面找出：包含 T 所有字符的最小子串。
+//
+// 示例：
+//
+// 输入: S = "ADOBECODEBANC", T = "ABC"
+//输出: "BANC"
+//
+// 说明：
+//
+//
+// 如果 S 中不存这样的子串，则返回空字符串 ""。
+// 如果 S 中存在这样的子串，我们保证它是唯一的答案。
+//
+// Related Topics 哈希表 双指针 字符串 Sliding Window
+
+//leetcode submit region begin(Prohibit modification and deletion)
+func minWindow(s string, t string) string {
+	sLen, tLen, minLen := len(s), len(t), math.MaxInt32
+	if sLen < tLen {
+		return ""
+	}
+	var i, j, found, start int
+	sMap, tMap := [256]int{}, [256]int{}
+	for _, c := range t {
+		tMap[c]++
+	}
+	for j < sLen {
+		if found < tLen {
+			prev := s[j]
+			if tMap[prev] > 0 {
+				sMap[prev]++
+				if sMap[prev] <= tMap[prev] {
+					found++
+				}
+			}
+			j++
+		}
+		for found == tLen {
+			if j-i < minLen {
+				start, minLen = i, j-i
+			}
+			next := s[i]
+			if tMap[next] > 0 {
+				sMap[next]--
+				if sMap[next] < tMap[next] {
+					found--
+				}
+			}
+			i++
+		}
+	}
+	if minLen == math.MaxInt32 {
+		return ""
+	}
+	return s[start : start+minLen]
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
