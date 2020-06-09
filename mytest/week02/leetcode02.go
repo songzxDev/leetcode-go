@@ -186,6 +186,49 @@ func preorderTraversal(root *TreeNode) []int {
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
+//根据一棵树的前序遍历与中序遍历构造二叉树。
+//
+// 注意:
+//你可以假设树中没有重复的元素。
+//
+// 例如，给出
+//
+// 前序遍历 preorder = [3,9,20,15,7]
+//中序遍历 inorder = [9,3,15,20,7]
+//
+// 返回如下的二叉树：
+//
+//     3
+//   / \
+//  9  20
+//    /  \
+//   15   7
+// Related Topics 树 深度优先搜索 数组
+
+//leetcode submit region begin(Prohibit modification and deletion)
+
+func buildTree(preorder []int, inorder []int) *TreeNode {
+	inorderMap := make(map[int]int, len(inorder))
+	for i, v := range inorder {
+		inorderMap[v] = i
+	}
+	var buildHelper func(preLeft int, preRight int, inLeft int, inRight int) *TreeNode
+	buildHelper = func(preLeft int, preRight int, inLeft int, inRight int) *TreeNode {
+		if preLeft > preRight || inLeft > inRight {
+			return nil
+		}
+		inRootIdx := inorderMap[preorder[preLeft]]
+		leftSubtreeLen := inRootIdx - 1 - inLeft + 1
+		return &TreeNode{
+			Val:   preorder[preLeft],
+			Left:  buildHelper(preLeft+1, preLeft+leftSubtreeLen, inLeft, inRootIdx-1),
+			Right: buildHelper(preLeft+leftSubtreeLen+1, preRight, inRootIdx+1, inRight),
+		}
+	}
+	return buildHelper(0, len(preorder)-1, 0, len(inorder)-1)
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
 
 func main() {
 
