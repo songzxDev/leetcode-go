@@ -35,6 +35,8 @@ func main() {
 				atomic.StoreInt32(&threshold, 1)
 				close(bookChan)
 				bookChan = make(chan bool)
+			default:
+				continue
 			}
 		}
 	}()
