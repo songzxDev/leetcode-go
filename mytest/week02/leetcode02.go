@@ -214,8 +214,8 @@ func preorderTraversal(root *TreeNode) []int {
 
 func buildTree(preorder []int, inorder []int) *TreeNode {
 	inorderMap := make(map[int]int, len(inorder))
-	for i, v := range inorder {
-		inorderMap[v] = i
+	for i, n := range inorder {
+		inorderMap[n] = i
 	}
 	var buildHelper func(preLeft int, preRight int, inLeft int, inRight int) *TreeNode
 	buildHelper = func(preLeft int, preRight int, inLeft int, inRight int) *TreeNode {
