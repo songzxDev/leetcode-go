@@ -257,22 +257,23 @@ func buildTree(preorder []int, inorder []int) *TreeNode {
 //leetcode submit region begin(Prohibit modification and deletion)
 func groupAnagrams(strs []string) [][]string {
 	var res [][]string
-	if strs != nil && len(strs) > 0 {
-		primes := [26]int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101}
-		getNumKey, groupMap := func(stt string) int {
-			numKey := 1
-			for _, c := range stt {
-				numKey *= primes[c-'a']
-			}
-			return numKey
-		}, make(map[int][]string)
-		for _, stt := range strs {
-			numKey := getNumKey(stt)
-			groupMap[numKey] = append(groupMap[numKey], stt)
+	if strs == nil || len(strs) == 0 {
+		return res
+	}
+	primes := [26]int{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101}
+	getPrimeKey, groupMap := func(stt string) int {
+		numKey := 1
+		for _, c := range stt {
+			numKey *= primes[c-'a']
 		}
-		for key := range groupMap {
-			res = append(res, groupMap[key])
-		}
+		return numKey
+	}, make(map[int][]string)
+	for _, stt := range strs {
+		numKey := getPrimeKey(stt)
+		groupMap[numKey] = append(groupMap[numKey], stt)
+	}
+	for key := range groupMap {
+		res = append(res, groupMap[key])
 	}
 	return res
 }
