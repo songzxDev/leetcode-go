@@ -437,7 +437,7 @@ func isValidBST(root *TreeNode) bool {
 		if node == nil {
 			return true
 		}
-		if node.Val <= leftFar || node.Val >= rightFar {
+		if leftFar >= node.Val || node.Val >= rightFar {
 			return false
 		}
 		return validHelper(node.Left, leftFar, node.Val) && validHelper(node.Right, node.Val, rightFar)
