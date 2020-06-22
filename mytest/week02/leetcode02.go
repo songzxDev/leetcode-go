@@ -217,8 +217,8 @@ func buildTree(preorder []int, inorder []int) *TreeNode {
 	for i, n := range inorder {
 		inorderMap[n] = i
 	}
-	var buildHelper func(preLeft int, preRight int, inLeft int, inRight int) *TreeNode
-	buildHelper = func(preLeft int, preRight int, inLeft int, inRight int) *TreeNode {
+	var buildHelper func(preLeft, preRight, inLeft, inRight int) *TreeNode
+	buildHelper = func(preLeft, preRight, inLeft, inRight int) *TreeNode {
 		if preLeft > preRight || inLeft > inRight {
 			return nil
 		}
