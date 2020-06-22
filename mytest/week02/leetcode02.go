@@ -472,7 +472,6 @@ func isValidBST(root *TreeNode) bool {
 // 谷歌：我们90％的工程师使用您编写的软件(Homebrew)，但是您却无法在面试时在白板上写出翻转二叉树这道题，这太糟糕了。
 // Related Topics 树
 
-
 //leetcode submit region begin(Prohibit modification and deletion)
 /**
  * Definition for a binary tree node.
@@ -486,10 +485,11 @@ func invertTree(root *TreeNode) *TreeNode {
 	if root == nil {
 		return nil
 	}
-	nextLeft, nextRight := root.Right, root.Left
-	root.Left, root.Right = invertTree(nextLeft), invertTree(nextRight)
+	left, right := root.Left, root.Right
+	root.Left, root.Right = invertTree(right), invertTree(left)
 	return root
 }
+
 //leetcode submit region end(Prohibit modification and deletion)
 
 func main() {
