@@ -355,28 +355,29 @@ func minWindow(s string, t string) string {
 //leetcode submit region begin(Prohibit modification and deletion)
 func threeSum(nums []int) [][]int {
 	var res [][]int
-	if nums != nil && len(nums) > 2 {
-		sort.Ints(nums)
-		isRun, n := nums[0] <= 0, len(nums)
-		for i := 0; isRun && i < n-2; i++ {
-			if i == 0 || nums[i-1] < nums[i] {
-				j, k := i+1, n-1
-				for j < k {
-					add := nums[i] + nums[j] + nums[k]
-					if add == 0 {
-						res = append(res, []int{nums[i], nums[j], nums[k]})
-						j, k = j+1, k-1
-						for j < k && nums[j-1] == nums[j] {
-							j++
-						}
-						for j < k && nums[k+1] == nums[k] {
-							k--
-						}
-					} else if add < 0 {
+	if nums == nil || len(nums) < 3 {
+		return res
+	}
+	sort.Ints(nums)
+	isRun, n := nums[0] <= 0, len(nums)
+	for i := 0; isRun && i < n-2; i++ {
+		if i == 0 || nums[i-1] < nums[i] {
+			j, k := i+1, n-1
+			for j < k {
+				add := nums[i] + nums[j] + nums[k]
+				if add == 0 {
+					res = append(res, []int{nums[i], nums[j], nums[k]})
+					j, k = j+1, k-1
+					for j < k && nums[j-1] == nums[j] {
 						j++
-					} else {
+					}
+					for j < k && nums[k+1] == nums[k] {
 						k--
 					}
+				} else if add < 0 {
+					j++
+				} else {
+					k--
 				}
 			}
 		}
