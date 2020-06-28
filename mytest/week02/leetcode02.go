@@ -293,34 +293,33 @@ func groupAnagrams(strs []string) [][]string {
 
 //leetcode submit region begin(Prohibit modification and deletion)
 func minWindow(s string, t string) string {
-	var i, j, start, found int
-	sLen, tLen := len(s), len(t)
+	sLen, tLen, i, j, start, minLen, found := len(s), len(t), 0, 0, 0, math.MaxInt32, 0
 	if sLen < tLen {
 		return ""
 	}
-	sCount, tCount, minLen := [256]int{}, [256]int{}, math.MaxInt32
+	sMap, tMap := [256]int{}, [256]int{}
 	for _, c := range t {
-		tCount[c]++
+		tMap[c]++
 	}
 	for j < sLen {
 		if found < tLen {
-			next := s[j]
-			if tCount[next] > 0 {
-				sCount[next]++
-				if sCount[next] <= tCount[next] {
+			before := s[j]
+			if tMap[before] > 0 {
+				sMap[before]++
+				if sMap[before] <= tMap[before] {
 					found++
 				}
 			}
 			j++
 		}
 		for found == tLen {
+			after := s[i]
 			if j-i < minLen {
 				start, minLen = i, j-i
 			}
-			prev := s[i]
-			if tCount[prev] > 0 {
-				sCount[prev]--
-				if sCount[prev] < tCount[prev] {
+			if tMap[after] > 0 {
+				sMap[after]--
+				if sMap[after] < tMap[after] {
 					found--
 				}
 			}
