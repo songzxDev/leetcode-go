@@ -523,6 +523,67 @@ func maxDepth(root *TreeNode) int {
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
+//给你一个整数数组 nums，请你将该数组升序排列。 
+//
+// 
+//
+// 
+// 
+//
+// 示例 1： 
+//
+// 输入：nums = [5,2,3,1]
+//输出：[1,2,3,5]
+// 
+//
+// 示例 2： 
+//
+// 输入：nums = [5,1,1,2,0,0]
+//输出：[0,0,1,1,2,5]
+// 
+//
+// 
+//
+// 提示： 
+//
+// 
+// 1 <= nums.length <= 50000 
+// -50000 <= nums[i] <= 50000 
+// 
+//
+
+type SortArrayUtil struct{}
+
+func (sort *SortArrayUtil) partition(array []int, begin, end int) int {
+	pivot, counter := end, begin
+	for i := begin; i < end; i++ {
+		if array[i] < array[pivot] {
+			array[i], array[counter] = array[counter], array[i]
+			counter++
+		}
+	}
+	array[pivot], array[counter] = array[counter], array[pivot]
+	return counter
+}
+func (sort *SortArrayUtil) QuickSort(array []int, begin, end int) {
+	if begin >= end {
+		return
+	}
+	pivot := sort.partition(array, begin, end)
+	sort.QuickSort(array, begin, pivot-1)
+	sort.QuickSort(array, pivot+1, end)
+}
+
+//leetcode submit region begin(Prohibit modification and deletion)
+func sortArray(nums []int) []int {
+	if nums != nil && len(nums) > 1 {
+		var sortUtil SortArrayUtil
+		sortUtil.QuickSort(nums, 0, len(nums)-1)
+	}
+	return nums
+}
+
+//leetcode submit region end(Prohibit modification and deletion)
 
 func main() {
 
