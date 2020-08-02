@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"sort"
 )
@@ -644,7 +645,92 @@ func numIslands(grid [][]byte) int {
 }
 
 //leetcode submit region end(Prohibit modification and deletion)
+//n 皇后问题研究的是如何将 n 个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+//
+//
+//
+// 上图为 8 皇后问题的一种解法。
+//
+// 给定一个整数 n，返回所有不同的 n 皇后问题的解决方案。
+//
+// 每一种解法包含一个明确的 n 皇后问题的棋子放置方案，该方案中 'Q' 和 '.' 分别代表了皇后和空位。
+//
+// 示例:
+//
+// 输入: 4
+//输出: [
+// [".Q..",  // 解法 1
+//  "...Q",
+//  "Q...",
+//  "..Q."],
+//
+// ["..Q.",  // 解法 2
+//  "Q...",
+//  "...Q",
+//  ".Q.."]
+//]
+//解释: 4 皇后问题存在两个不同的解法。
+//
+//
+//
+//
+// 提示：
+//
+//
+// 皇后，是国际象棋中的棋子，意味着国王的妻子。皇后只做一件事，那就是“吃子”。当她遇见可以吃的棋子时，就迅速冲上去吃掉棋子。当然，她横、竖、斜都可走一到七步
+//，可进可退。（引用自 百度百科 - 皇后 ）
+//
+// Related Topics 回溯算法
+
+//leetcode submit region begin(Prohibit modification and deletion)
+func solveNQueens(n int) [][]string {
+	var res [][]string
+	if n > 0 {
+		var rows []int
+		lie, pie, na := make(map[int]bool, n), make(map[int]bool, n), make(map[int]bool, n)
+		toBoards := func(rows []int, n int) []string {
+			var boards []string
+			for _, r := range rows {
+				var target []rune
+				for i := 0; i < n; i++ {
+					if r == i {
+						target = append(target, 'Q')
+					} else {
+						target = append(target, '.')
+					}
+				}
+				boards = append(boards, string(target))
+			}
+			return boards
+		}
+		containsKey := func(myMap map[int]bool, l int) bool {
+			_, ok := myMap[l]
+			return ok
+		}
+		var bfsHelper func(row, n int)
+		bfsHelper = func(row, n int) {
+			if row >= n {
+				res = append(res, toBoards(rows, n))
+				return
+			}
+			for l := 0; l < n; l++ {
+				if containsKey(lie, l) || containsKey(pie, row+l) || containsKey(na, row-l) {
+					continue
+				}
+				rows, lie[l], pie[row+l], na[row-l] = append(rows, l), true, true, true
+				bfsHelper(row+1, n)
+				rows = rows[:len(rows)-1]
+				delete(lie, l)
+				delete(pie, row+l)
+				delete(na, row-l)
+			}
+		}
+		bfsHelper(0, n)
+	}
+	return res
+}
+//leetcode submit region end(Prohibit modification and deletion)
 
 func main() {
-
+	fmt.Println(solveNQueens(4))
 }

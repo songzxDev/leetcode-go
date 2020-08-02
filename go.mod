@@ -6,7 +6,9 @@ require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/asaskevich/EventBus v0.0.0-20200428142821-4fc0642a29f3 // indirect
 	github.com/go-ole/go-ole v1.2.4 // indirect
+	github.com/go-sql-driver/mysql v1.5.0
 	github.com/google/uuid v1.1.1 // indirect
+	github.com/jmoiron/sqlx v1.2.0
 	github.com/myzhan/boomer v0.0.0-20200527033446-9685807989ad
 	github.com/olekukonko/tablewriter v0.0.4 // indirect
 	github.com/shirou/gopsutil v2.20.4+incompatible // indirect
